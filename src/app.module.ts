@@ -29,7 +29,7 @@ import { IamModule } from './modules/iam/iam.module';
           database: configService.get('DATABASE_DB'),
           autoLoadEntities: true,
           synchronize: true,
-          logging: true,
+          // logging: true,
           timezone: '+08:00',
           keepConnectionAlive: true,
         };

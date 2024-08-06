@@ -5,10 +5,12 @@ import {
   ApiProperty,
 } from '@nestjs/swagger';
 import {
+  IsArray,
   IsBoolean,
   IsEmail,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   MaxLength,
@@ -81,6 +83,31 @@ export class CreateUserDto {
    */
   @IsString()
   remark?: string = '';
+
+  /**
+   * 角色ID
+   * @example [1, 2]
+   */
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  roleIds?: number[];
+
+  /**
+   * 岗位ID
+   * @example 1
+   */
+  @IsOptional()
+  @IsNumber()
+  postId?: number;
+
+  /**
+   * 部门ID
+   * @example 1
+   */
+  @IsOptional()
+  @IsNumber()
+  deptId?: number;
 }
 
 export class QueryUserDto extends PartialType(
@@ -100,4 +127,16 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({ required: true })
   @IsNumber()
   id: number;
+}
+
+export class ChangePasswordDto {
+  @IsNumber()
+  id: number;
+
+  @IsString()
+  @IsOptional()
+  oldPassword: string = '';
+
+  @IsString()
+  password: string;
 }

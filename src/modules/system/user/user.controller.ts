@@ -9,7 +9,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
+import {
+  ChangePasswordDto,
+  CreateUserDto,
+  QueryUserDto,
+  UpdateUserDto,
+} from './user.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -21,6 +26,8 @@ import { User } from './user.entity';
 import { PaginatedDto } from 'src/common/dto/base.dto';
 import { ApiPaginatedResponse } from 'src/common/response/paginated.response';
 import { Permissions } from 'src/modules/iam/authorization/decorators/permissions.decorator';
+import { ActiveUser } from 'src/modules/iam/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/modules/iam/interfaces/active-user-data.interface';
 
 @ApiTags('用户管理')
 @ApiBearerAuth('bearer')
@@ -29,6 +36,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @Permissions('system:user:create')
   @ApiOperation({ summary: '创建用户' })
   @ApiCreatedResponse({ type: User })
   create(@Body() createUserDto: CreateUserDto) {
@@ -43,23 +51,23 @@ export class UserController {
     return this.userService.findAll(queryUserDto);
   }
 
-  // @Get('info')
-  // @ApiOperation({ summary: '获取用户信息' })
-  // @ApiOkResponse({ type: User })
-  // async findSelf(@ActiveUser() user: ActiveUserData) {
-  //   return this.userService.findSelf(user.sub);
-  // }
+  @Get('info')
+  @Permissions('system:user:info')
+  @ApiOperation({ summary: '获取个人信息' })
+  @ApiOkResponse({ type: User })
+  async findSelf(@ActiveUser() user: ActiveUserData) {
+    return this.userService.findSelf(user.sub);
+  }
 
-  // @Patch('changePassword')
-  // @ApiOperation({ summary: '修改密码' })
-  // @ApiOkResponse({ type: User })
-  // async changePassword(
-  //   @Body() { id, oldPassword, password }: ChangePasswordDto,
-  // ) {
-  //   return this.userService.changePassword(id, password, oldPassword);
-  // }
+  @Patch('changePassword')
+  @ApiOperation({ summary: '修改密码' })
+  @ApiOkResponse({ type: User })
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    return this.userService.changePassword(changePasswordDto);
+  }
 
   @Get(':id')
+  @Permissions('system:user:info')
   @ApiOperation({ summary: '获取用户信息' })
   @ApiOkResponse({ type: User })
   findOne(@Param('id') id: number) {
@@ -67,6 +75,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @Permissions('system:user:update')
   @ApiOperation({ summary: '更新用户信息' })
   @ApiOkResponse({ type: User })
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
@@ -74,6 +83,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Permissions('system:user:delete')
   remove(@Param('id') id: number) {
     return this.userService.remove(id);
   }

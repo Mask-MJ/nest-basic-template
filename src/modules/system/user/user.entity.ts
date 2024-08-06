@@ -37,6 +37,6 @@ export class User extends Base {
   loginTime: Date;
 
   @JoinTable()
-  @ManyToMany(() => Role, (role) => role.users)
+  @ManyToMany(() => Role, (role) => role.users, { cascade: true })
   roles: Role[];
 }
