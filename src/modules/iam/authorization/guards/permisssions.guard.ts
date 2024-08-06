@@ -20,6 +20,7 @@ export class PermissionsGuard implements CanActivate {
       PERMISSIONS_KEY,
       [context.getHandler(), context.getClass()],
     );
+    console.log(contextPermissions);
     if (!contextPermissions) return true;
     const user: ActiveUserData = context.switchToHttp().getRequest()[
       REQUEST_USER_KEY
@@ -27,9 +28,8 @@ export class PermissionsGuard implements CanActivate {
 
     const userInfo = await this.userRepository.findOne({
       where: { id: user.sub },
-      relations: ['role', 'role.menu', 'role.menu.permissions'],
+      relations: ['roles', 'roles.menus', 'roles.menus.permissions'],
     });
-
     if (!userInfo) return false;
     if (userInfo.isAdmin) return true;
     const permissionsName = userInfo.roles

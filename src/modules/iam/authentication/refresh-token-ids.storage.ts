@@ -22,7 +22,8 @@ export class RefreshTokenIdsStorage
   onApplicationBootstrap() {
     const host = this.configService.get('REDIS_HOST');
     const port = this.configService.get('REDIS_PORT');
-    this.redisClient = new Redis({ host, port, lazyConnect: true });
+    const password = this.configService.get('REDIS_PASSWORD');
+    this.redisClient = new Redis({ host, port, password, lazyConnect: true });
   }
 
   // 当程序退出时, 关闭 redis 客户端

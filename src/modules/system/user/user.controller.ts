@@ -20,6 +20,7 @@ import {
 import { User } from './user.entity';
 import { PaginatedDto } from 'src/common/dto/base.dto';
 import { ApiPaginatedResponse } from 'src/common/response/paginated.response';
+import { Permissions } from 'src/modules/iam/authorization/decorators/permissions.decorator';
 
 @ApiTags('用户管理')
 @ApiBearerAuth('bearer')
@@ -35,6 +36,7 @@ export class UserController {
   }
 
   @Get()
+  @Permissions('system:user:list')
   @ApiOperation({ summary: '获取用户列表' })
   @ApiPaginatedResponse(User)
   findAll(@Query() queryUserDto: QueryUserDto): Promise<PaginatedDto<User>> {
