@@ -6,9 +6,6 @@ export class LoginLog extends Base {
   @Column({ comment: '用户ID' })
   userId: number;
 
-  @Column({ comment: '会话ID' })
-  sessionId: string;
-
   @Column({ comment: '账号' })
   account: string;
 

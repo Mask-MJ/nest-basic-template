@@ -105,8 +105,12 @@ export class UserService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update(id, updateUserDto);
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.preload({ id, ...updateUserDto });
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    return this.userRepository.save(user);
   }
 
   async remove(user: ActiveUserData, id: number, request: Request) {

@@ -20,17 +20,17 @@ import {
 import { HashingService } from '../hashing/hashing.service';
 import { User } from 'src/modules/system/user/user.entity';
 import { randomUUID } from 'crypto';
-import { LoginLogService } from 'src/modules/monitor/login-log/login-log.service';
 import { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly hashingService: HashingService,
-    private readonly loginlogService: LoginLogService,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
@@ -86,12 +86,7 @@ export class AuthenticationService {
     // 记录登录日志
     this.logger.log('登录', AuthenticationService.name);
     console.log('request', request.ip);
-    await this.loginlogService.create({
-      userId: user.id,
-      sessionId: '',
-      account: user.account,
-      ip: request.ip || '',
-    });
+    this.eventEmitter.emit('user.delete', { user, ip: request.ip });
 
     // 生成 access token
     return await this.generateTokens(user);

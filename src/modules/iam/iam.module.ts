@@ -13,7 +13,6 @@ import { AccessTokenGuard } from './authentication/guards/access-token.guard';
 import { RefreshTokenIdsStorage } from './authentication/refresh-token-ids.storage';
 // import { RolesGuard } from './authorization/guards/roles.guard';
 import { PermissionsGuard } from './authorization/guards/permisssions.guard';
-import { LoginLogService } from '../monitor/login-log/login-log.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/modules/system/user/user.entity';
 import { Role } from 'src/modules/system/role/role.entity';
@@ -33,7 +32,6 @@ import { Permission } from 'src/modules/system/menu/permission.entity';
     AccessTokenGuard,
     RefreshTokenIdsStorage,
     AuthenticationService,
-    LoginLogService,
     Logger,
   ],
   controllers: [AuthenticationController],

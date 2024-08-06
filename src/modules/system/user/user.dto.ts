@@ -69,14 +69,16 @@ export class CreateUserDto {
    * @example 1
    */
   @IsEnum([0, 1, 2])
-  sex?: number = 1;
+  @IsOptional()
+  sex?: number;
 
   /**
    * 状态 false: 禁用 true: 启用
    * @example true
    */
   @IsBoolean()
-  status?: boolean = true;
+  @IsOptional()
+  status?: boolean;
 
   /**
    * 备注
