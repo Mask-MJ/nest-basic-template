@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -28,6 +29,7 @@ import { ApiPaginatedResponse } from 'src/common/response/paginated.response';
 import { Permissions } from 'src/modules/iam/authorization/decorators/permissions.decorator';
 import { ActiveUser } from 'src/modules/iam/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/modules/iam/interfaces/active-user-data.interface';
+import { Request as ExpRequest } from 'express';
 
 @ApiTags('用户管理')
 @ApiBearerAuth('bearer')
@@ -84,7 +86,12 @@ export class UserController {
 
   @Delete(':id')
   @Permissions('system:user:delete')
-  remove(@Param('id') id: number) {
-    return this.userService.remove(id);
+  @ApiOperation({ summary: '删除用户' })
+  remove(
+    @ActiveUser() user: ActiveUserData,
+    @Param('id') id: number,
+    @Request() request: ExpRequest,
+  ) {
+    return this.userService.remove(user, id, request);
   }
 }

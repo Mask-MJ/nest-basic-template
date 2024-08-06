@@ -8,11 +8,13 @@ import { SystemModule } from './modules/system/system.module';
 import { ProjectModule } from './modules/project/project.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { IamModule } from './modules/iam/iam.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 10 }]),
     ConfigModule.forRoot({ validate, isGlobal: true }),
+    EventEmitterModule.forRoot(),
     RouterModule.register([
       { path: 'project', module: ProjectModule },
       { path: 'system', module: SystemModule },

@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,14 +12,18 @@ import {
 } from './user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { In, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { HashingService } from 'src/modules/iam/hashing/hashing.service';
 import { Role } from '../role/role.entity';
+import { Request } from 'express';
+import { ActiveUserData } from 'src/modules/iam/interfaces/active-user-data.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly hashingService: HashingService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
@@ -42,8 +47,19 @@ export class UserService {
   }
 
   async findAll(queryUserDto: QueryUserDto) {
-    const { page, pageSize } = queryUserDto;
+    const { account, nickname, sex, page, pageSize } = queryUserDto;
+    const condition: Record<string, any> = {
+      sex,
+    };
+    if (account) {
+      condition.username = Like(`%${account}%`);
+    }
+    if (nickname) {
+      condition.nickname = Like(`%${nickname}%`);
+    }
+
     const [rows, total] = await this.userRepository.findAndCount({
+      where: condition,
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
@@ -90,10 +106,18 @@ export class UserService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return this.userRepository.update(id, updateUserDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(user: ActiveUserData, id: number, request: Request) {
+    const userInfo = await this.userRepository.findOneOrFail({ where: { id } });
+    if (userInfo.isAdmin) {
+      throw new ConflictException('管理员账号不允许删除');
+    }
+
+    await this.userRepository.delete(id);
+    this.eventEmitter.emit('user.delete', { user: userInfo, ip: request.ip });
+
+    return '删除成功';
   }
 }

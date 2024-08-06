@@ -1,45 +1,32 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { LoginLogService } from './login-log.service';
-import { CreateLoginLogDto } from './dto/create-login-log.dto';
-import { UpdateLoginLogDto } from './dto/update-login-log.dto';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiOkResponse,
+} from '@nestjs/swagger';
+import { LoginLog } from './login-log.entity';
+import { ApiPaginatedResponse } from 'src/common/response/paginated.response';
+import { QueryLoginDto } from './login-log.dto';
 
+@ApiTags('登录日志管理')
+@ApiBearerAuth('bearer')
 @Controller('login-log')
 export class LoginLogController {
   constructor(private readonly loginLogService: LoginLogService) {}
 
-  @Post()
-  create(@Body() createLoginLogDto: CreateLoginLogDto) {
-    return this.loginLogService.create(createLoginLogDto);
-  }
-
   @Get()
-  findAll() {
-    return this.loginLogService.findAll();
+  @ApiOperation({ summary: '获取日志列表' })
+  @ApiPaginatedResponse(LoginLog)
+  findAll(@Query() queryLoginDto: QueryLoginDto) {
+    return this.loginLogService.findAll(queryLoginDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.loginLogService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateLoginLogDto: UpdateLoginLogDto,
-  ) {
-    return this.loginLogService.update(+id, updateLoginLogDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.loginLogService.remove(+id);
+  @ApiOperation({ summary: '获取日志信息' })
+  @ApiOkResponse({ type: LoginLog })
+  findOne(@Param('id') id: number) {
+    return this.loginLogService.findOne(id);
   }
 }

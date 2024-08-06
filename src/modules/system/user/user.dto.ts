@@ -3,6 +3,7 @@ import {
   IntersectionType,
   PickType,
   ApiProperty,
+  OmitType,
 } from '@nestjs/swagger';
 import {
   IsArray,
@@ -122,8 +123,9 @@ export class QueryUserDto extends PartialType(
     BaseDto,
   ),
 ) {}
-
-export class UpdateUserDto extends PartialType(CreateUserDto) {
+export class UpdateUserDto extends PartialType(
+  OmitType(CreateUserDto, ['account', 'password']),
+) {
   @ApiProperty({ required: true })
   @IsNumber()
   id: number;
