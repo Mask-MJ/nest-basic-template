@@ -1,8 +1,9 @@
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Base } from 'src/common/entities/base.entity';
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, Index, JoinTable, ManyToMany } from 'typeorm';
 import { Role } from '../role/role.entity';
 
+@Index(['account', 'nickname'])
 @Entity()
 export class User extends Base {
   @Column({ type: 'varchar', length: 30, comment: '用户名' })

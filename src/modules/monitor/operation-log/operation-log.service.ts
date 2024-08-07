@@ -5,7 +5,7 @@ import {
 } from './operation-log.dto';
 import { OperationLog } from './operation-log.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class OperationLogService {
@@ -17,11 +17,28 @@ export class OperationLogService {
     return this.operationLogRepository.save(createOperationLogDto);
   }
 
-  findAll(queryOperationLogDto: QueryOperationLogDto) {
-    return `This action returns all operationLog`;
+  async findAll(queryOperationLogDto: QueryOperationLogDto) {
+    const { pageSize, page, account, businessType, module } =
+      queryOperationLogDto;
+    const condition: Record<string, any> = {};
+    if (account) {
+      condition.account = Like(`%${account}%`);
+    }
+    if (businessType) {
+      condition.businessType = Like(`%${businessType}%`);
+    }
+    if (module) {
+      condition.module = Like(`%${module}%`);
+    }
+    const [rows, total] = await this.operationLogRepository.findAndCount({
+      where: condition,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    return { rows, total, page, pageSize };
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} operationLog`;
+    return this.operationLogRepository.findOneOrFail({ where: { id } });
   }
 }

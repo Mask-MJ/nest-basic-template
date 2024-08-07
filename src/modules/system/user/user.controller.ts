@@ -41,8 +41,11 @@ export class UserController {
   @Permissions('system:user:create')
   @ApiOperation({ summary: '创建用户' })
   @ApiCreatedResponse({ type: User })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(
+    @ActiveUser() user: ActiveUserData,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    return this.userService.create(user, createUserDto);
   }
 
   @Get()

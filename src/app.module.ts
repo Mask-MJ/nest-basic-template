@@ -31,8 +31,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
           database: configService.get('DATABASE_DB'),
           autoLoadEntities: true,
           synchronize: true,
+          // migrations: ['./src/migrations/*.ts'],
           // logging: true,
-          timezone: '+08:00',
           keepConnectionAlive: true,
         };
       },

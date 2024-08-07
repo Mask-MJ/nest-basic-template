@@ -27,7 +27,7 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
   ) {}
-  async create(createUserDto: CreateUserDto) {
+  async create(activeUser: ActiveUserData, createUserDto: CreateUserDto) {
     try {
       const user = new User();
       user.account = createUserDto.account;
@@ -36,7 +36,7 @@ export class UserService {
       user.roles = await this.roleRepository.find({
         where: { id: In(createUserDto.roleIds) },
       });
-
+      user.createBy = activeUser.nickname || activeUser.account;
       await this.userRepository.save(user);
     } catch (error) {
       if (error.code === '23505') {
@@ -111,14 +111,21 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async remove(user: ActiveUserData, id: number, request: Request) {
-    const userInfo = await this.userRepository.findOneOrFail({ where: { id } });
-    if (userInfo.isAdmin) {
+  async remove(activeUser: ActiveUserData, id: number, request: Request) {
+    const user = await this.userRepository.findOneOrFail({ where: { id } });
+    if (user.isAdmin) {
       throw new ConflictException('管理员账号不允许删除');
     }
 
     await this.userRepository.delete(id);
-    this.eventEmitter.emit('user.delete', { user: userInfo, ip: request.ip });
+    this.eventEmitter.emit('user.delete', {
+      title: `删除ID为${id}的用户`,
+      businessType: 2,
+      module: '用户管理',
+      userId: activeUser.sub,
+      account: activeUser.account,
+      ip: request.ip,
+    });
 
     return '删除成功';
   }

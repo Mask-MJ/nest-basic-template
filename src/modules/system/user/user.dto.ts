@@ -41,7 +41,7 @@ export class CreateUserDto {
    * @example '管理员'
    */
   @IsString()
-  nickname?: string = '';
+  nickname: string;
 
   /**
    * 头像
