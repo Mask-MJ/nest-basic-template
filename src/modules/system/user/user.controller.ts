@@ -54,7 +54,6 @@ export class UserController {
   }
 
   @Get('info')
-  @Permissions('system:user:info')
   @ApiOperation({ summary: '获取个人信息' })
   @ApiOkResponse({ type: User })
   async findSelf(@ActiveUser() user: ActiveUserData) {

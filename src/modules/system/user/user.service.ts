@@ -48,9 +48,7 @@ export class UserService {
 
   async findAll(queryUserDto: QueryUserDto) {
     const { account, nickname, sex, page, pageSize } = queryUserDto;
-    const condition: Record<string, any> = {
-      sex,
-    };
+    const condition: Record<string, any> = { sex };
     if (account) {
       condition.username = Like(`%${account}%`);
     }
